@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
+
+    .axis--x path {
+        display: none;
+    }
+
+    .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+    }
+
+
+</style>
+
+<svg width="960" height="500"></svg>
+
+<div id='tooltip' style='position:absolute;background-color:white;padding:10px;border: 1px solid;border-radius: 25px;'>
+
+
+</div>
+
+<script src="//d3js.org/d3.v4.min.js"></script>
+<script>
+
+    var svg = d3.select("svg"),
+        margin = {top: 20, right: 80, bottom: 30, left: 50},
+        width = svg.attr("width") - margin.left - margin.right,
+        height = svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var parseTime = d3.timeParse("%Y");
+
+    var x = d3.scaleTime().range([0, width]),
+        y = d3.scaleLinear().range([height, 0]),
+        z = d3.scaleOrdinal(d3.schemeCategory10);
+
+    var line = d3.line()
+        .x(function(d) { return x(d.year); })
+        .y(function(d) { return y(d.affiliation); });
+
+    const tooltip = d3.select('#tooltip');
+    const tooltipLine = svg.append('line');
+
+    let tipBox;
+
+    d3.csv("data.csv", type, function(error, data) {
+        if (error) throw error;
+
+        var parties = data.columns.slice(1).map(function(id) {
+            return {
+                id: id,
+                values: data.map(function(d) {
+                    return {year: d.year, affiliation: d[id]};
+                })
+            };
+        });
+
+        x.domain(d3.extent(data, function(d) { return d.year; }));
+
+        y.domain([
+            d3.min(parties, function(c) { return d3.min(c.values, function(d) { return d.affiliation; }); }),
+            d3.max(parties, function(c) { return d3.max(c.values, function(d) { return d.affiliation; }); })
+        ]);
+
+        z.domain(parties.map(function(c) { return c.id; }));
+
+        g.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + height + ")")
+            .call(d3.axisBottom(x).ticks(d3.timeYear.every(4)));
+
+        g.append("g")
+            .attr("class", "axis axis--y")
+            .call(d3.axisLeft(y))
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", "0.71em")
+            .attr("fill", "#001")
+            .text("Affiliation");
+
+        var party = g.selectAll(".party")
+            .data(parties)
+            .enter().append("g")
+            .attr("class", "party");
+
+        party.append("path")
+            .attr("class", "line")
+            .attr("d", function(d) { return line(d.values); })
+            .style("stroke", function(d) {
+                if(d.id =="Republican"){
+                    return "red";
+                }
+                if(d.id =="Independent") {
+                    return "gray";
+                }
+            });
+
+        party.append("text")
+            .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+            .attr("transform", function(d) { return "translate(" + x(d.value.year) + "," + y(d.value.affiliation) + ")"; })
+            .attr("x", 3)
+            .attr("dy", "0.35em")
+            .style("font", "10px sans-serif")
+            .text(function(d) { return d.id; });
+
+        tipBox = g.append('rect')
+            .attr('width', width+10)
+            .attr('height', height)
+            .attr('opacity', 0)
+            .on('mousemove', drawTooltip)
+            .on('mouseout', removeTooltip);
+
+        function removeTooltip() {
+            if (tooltip) tooltip.style('display', 'none');
+            if (tooltipLine) tooltipLine.attr('stroke', 'none');
+        }
+
+        function drawTooltip() {
+            var year = d3.mouse(this)[0]+50;
+
+            const year2 = x.invert(d3.mouse(this)[0]).getFullYear();
+
+            let array = [1952, 1956, 1960, 1964,1968, 1972, 1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2016];
+            let closest = array.sort( (a, b) => Math.abs(year2 - a) - Math.abs(year2 - b) )[0];
+
+            var count = (closest-1952)/4;
+            var demAff = data[count].Democrat;
+            var indAff = data[count].Independent;
+            var repAff = data[count].Republican;
+
+
+
+             tooltipLine.attr('stroke', 'black')
+                .attr('x1', year+5)
+                .attr('x2', year+5)
+                .attr('y1', 20)
+                .attr('y2', height+20);
+
+            tooltip.html(closest + "<br>Democrats: " + demAff + "<br>Independents: " +indAff + "<br>Republicans: " + repAff)
+                .style('display', 'block')
+                .style('left', (d3.event.pageX + 30)+ "px")
+                .style('top', (d3.event.pageY - 10) + "px")
+                ;
+
+        }
+
+    });
+
+    function type(d, _, columns) {
+        d.year = parseTime(d.year);
+        for (var i = 1, n = columns.length, c; i < n; ++i) d[c = columns[i]] = +d[c];
+        return d;
+    }
+
+</script>
+
+</html>
