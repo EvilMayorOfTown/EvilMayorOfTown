@@ -1,27 +1,107 @@
 <!DOCTYPE html>
 <html>
 <meta charset="utf-8">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style>
 
     .axis--x path {
         display: none;
     }
-
     .line {
         fill: none;
         stroke: steelblue;
         stroke-width: 1.5px;
     }
+    .float {
+        float: left;
+        animation-name: fadeInOut;
+        animation-duration: 1s;
+    }
+    .half{
+       width: 30%;
+    }
+    #textBox{
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 15px;
+    }
+    #barchart{
+        margin-left: 50px;
+    }
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+    .header {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #d5d5d6;
+        margin-bottom: 10px;
+    }
+    .axis {
+        font: 15px sans-serif;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #D4D8DA;
+        stroke-width: 1px;
+        shape-rendering: crispEdges;
+    }
+    .center {
+        margin: auto;
 
+    }
 
 </style>
 
-<svg width="960" height="500"></svg>
+<body style="width: 1054px;">
 
-<div id='tooltip' style='position:absolute;background-color:white;padding:10px;border: 1px solid;border-radius: 25px;'>
+<div class="header">
+    <h2 style = "margin-left: 15px">Party Affiliation and Social Attitude Trends in America</h2>
+    <div class="pull-right" style="line-height: 50px;margin-right: 20px; margin-top:5px">
+        <button class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="location.href = "about.html">About the Visualization</button>
+    </div>
+</div>
 
+
+<div class = "center">
+
+<div class="float half" id="textBox">
+    <br>
+    <b>Is America more divided than ever?</b><br><br>
+    The current state of American politics make the partisan divide appear larger and more bitter than ever.  But is that true?
+    The purpose of this visualization is to allow users to explore the historical partisanship in America and its relationship
+    with social and cultural trends in American life.  <br><br>
+    The visualization on the right, drawn from the American National Election Studies time series, plots survey respondents'
+    self-identified political identity on each election year from 1968 to 2016.  Perhaps surprisingly, the data shows a sharp
+    rise in political independents, to the point where they are now the largest identity group. <br><br>
+
+    Click on the chart to drill-down into details relating to a given-year.
+</div>
+
+<div class="float half">
+<svg width="760" height="500"></svg>
+</div>
+
+
+<div>
+    <svg id = "barchart">
+    </svg>
+</div>
+
+<div id='tooltip' style='position:absolute;background-color:white;padding:10px;border: 1px solid;border-radius: 25px;opacity:0'>
+</div>
+
+<div id='annotation' style='position:absolute;background-color:white;padding:10px;opacity:0'>
+</div>
 
 </div>
+
+</body>
 
 <script src="//d3js.org/d3.v4.min.js"></script>
 <script>
@@ -44,6 +124,7 @@
 
     const tooltip = d3.select('#tooltip');
     const tooltipLine = svg.append('line');
+    const annotation = d3.select('#annotation');
 
     let tipBox;
 
@@ -113,7 +194,8 @@
             .attr('height', height)
             .attr('opacity', 0)
             .on('mousemove', drawTooltip)
-            .on('mouseout', removeTooltip);
+            .on('mouseout', removeTooltip)
+            .on("click", changeScene);
 
         function removeTooltip() {
             if (tooltip) tooltip.style('display', 'none');
@@ -125,15 +207,13 @@
 
             const year2 = x.invert(d3.mouse(this)[0]).getFullYear();
 
-            let array = [1952, 1956, 1960, 1964,1968, 1972, 1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2016];
+            let array = [1968, 1972, 1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2016];
             let closest = array.sort( (a, b) => Math.abs(year2 - a) - Math.abs(year2 - b) )[0];
 
-            var count = (closest-1952)/4;
+            var count = (closest-1968)/4;
             var demAff = data[count].Democrat;
             var indAff = data[count].Independent;
             var repAff = data[count].Republican;
-
-
 
              tooltipLine.attr('stroke', 'black')
                 .attr('x1', year+5)
@@ -145,11 +225,338 @@
                 .style('display', 'block')
                 .style('left', (d3.event.pageX + 30)+ "px")
                 .style('top', (d3.event.pageY - 10) + "px")
+                .style('opacity', 1)
                 ;
 
         }
 
+        function changeScene() {
+            const year2 = x.invert(d3.mouse(this)[0]).getFullYear();
+            var array = [1968, 1972, 1976, 1980, 1984, 1988, 1992, 1996, 2000, 2004, 2008, 2012, 2016];
+            var closest = array.sort( (a, b) => Math.abs(year2 - a) - Math.abs(year2 - b) )[0];
+            var count = (closest-1968)/4;
+            var demAff = data[count].Democrat;
+            var indAff = data[count].Independent;
+            var repAff = data[count].Republican;
+
+            annotation.html("<b>" + closest + "</b><br>Democrats: " + demAff + "%" + "<br>Independents: " +indAff + "%" + "<br>Republicans: " + repAff+ "%")
+                .style('left', "900px")
+                .style('top', "80px")
+                .style('opacity', 1);
+
+            document.getElementById("barchart").innerHTML = " ";
+
+            if(closest ==1968){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 5, 1968<br><br>"+
+                    "</b>Richard Nixon, a Republican, wins the presidential election with 43.4% of the popular vote and 301 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1968:" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1968')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1972){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 7, 1972<br><br>"+
+                    "</b>Richard Nixon, a Republican, wins relection in a landslide, capturing 60.7% of the popular vote and 520 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1972:" +
+                    "<br><br><button onclick='launchAbortionGraph(1972)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1972')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1976){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 2, 1976<br><br>"+
+                    "</b>Jimmy Carter, a Democrat, wins the election with 50.1% of the popular vote and 297 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1976:" +
+                    "<br><br><button onclick='launchAbortionGraph(1976)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1976')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1980){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 4, 1980<br><br>"+
+                    "</b>Ronald Regan, a Republican, wins the election with 50.7% of the popular vote and 489 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1980:" +
+                    "<br><br><button onclick='launchAbortionGraph(1980)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1980')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1984){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 6, 1984<br><br>"+
+                    "</b>Ronald Regan, a Republican, wins reelection with 58.8% of the popular vote and 525 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1984:" +
+                    "<br><br><button onclick='launchAbortionGraph(1984)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1984')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1988){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 8, 1988<br><br>"+
+                    "</b>George H.W. Bush, a Republican, wins the election with 53.4% of the popular vote and 426 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1988:" +
+                    "<br><br><button onclick='launchAbortionGraph(1988)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1988')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1992){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 3, 1992<br><br>"+
+                    "</b>Bill Clinton, a Democrat, wins the election with 43.0% of the popular vote and 370 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1992:" +
+                    "<br><br><button onclick='launchAbortionGraph(1992)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1992')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==1996){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 5, 1996<br><br>"+
+                    "</b>Bill Clinton, a Democrat, wins reelection with 49.2% of the popular vote and 379 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 1996:" +
+                    "<br><br><button onclick='launchAbortionGraph(1996)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1996')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==2000){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 7, 2000<br><br>"+
+                    "</b>George W. Bush, a Republican, wins the election with 47.9% of the popular vote and 271 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 2000:" +
+                    "<br><br><button onclick='launchAbortionGraph(2000)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_2000')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==2004){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 2, 2004<br><br>"+
+                    "</b>George W. Bush, a Republican, wins reelection with 50.7% of the popular vote and 286 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 2004:" +
+                    "<br><br><button onclick='launchAbortionGraph(2004)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_2004')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==2008){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 4, 2008<br><br>"+
+                    "</b>Barack Obama, a Democrat, wins the election with 52.9% of the popular vote and 365 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 2008:" +
+                    "<br><br><button onclick='launchAbortionGraph(2008)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,2008')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==2012){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 6, 2012<br><br>"+
+                    "</b>Barack Obama, a Democrat, wins reelection with 51.1% of the popular vote and 332 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 2012:" +
+                    "<br><br><button onclick='launchAbortionGraph(2012)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,2012')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+            if(closest ==2016){
+                var el = document.getElementById("textBox");
+                document.getElementById("textBox").innerHTML =
+                    "<br><b>November 8, 2016<br><br>"+
+                    "</b>Donald Trump, a Republican, wins reelection with 46.1% of the popular vote and 304 electoral votes.<br><br>"+
+                    "Click on the buttons below for addition information on the election and social issues in 2016:" +
+                    "<br><br><button onclick='launchAbortionGraph(2016)'>Chart:  Attitudes on Abortion</button>" +
+                    "<br><button onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,2012')> Link:  Presidential Election</button>";
+                fadeIn(el);
+            }
+        }
     });
+
+    function launchAbortionGraph(year){
+        if(year==1972) {
+            dataset = [
+                {value: 21, label: "Always Legal"},
+                {value: 54, label: "Sometimes Legal"},
+                {value: 22, label: "Never Legal"},
+                {value: 3, label: "Don't Know"}
+            ]
+        }
+        if(year==1976) {
+            dataset = [
+                {value: 22, label: "Always Legal"},
+                {value: 54, label: "Sometimes Legal"},
+                {value: 19, label: "Never Legal"},
+                {value: 4, label: "Don't Know"}
+            ]
+        }
+        if(year==1980) {
+            dataset = [
+                {value: 25, label: "Always Legal"},
+                {value: 53, label: "Sometimes Legal"},
+                {value: 18, label: "Never Legal"},
+                {value: 4, label: "Don't Know"}
+            ]
+        }
+        if(year==1984) {
+            dataset = [
+                {value: 21, label: "Always Legal"},
+                {value: 54, label: "Sometimes Legal"},
+                {value: 21, label: "Never Legal"},
+                {value: 3, label: "Don't Know"}
+            ]
+        }
+        if(year==1988) {
+            dataset = [
+                {value: 24, label: "Always Legal"},
+                {value: 57, label: "Sometimes Legal"},
+                {value: 17, label: "Never Legal"},
+                {value: 2, label: "Don't Know"}
+            ]
+        }
+        if(year==1992) {
+            dataset = [
+                {value: 34, label: "Always Legal"},
+                {value: 48, label: "Sometimes Legal"},
+                {value: 15, label: "Never Legal"},
+                {value: 3, label: "Don't Know"}
+            ]
+        }
+        if(year==1996) {
+            dataset = [
+                {value: 25, label: "Always Legal"},
+                {value: 58, label: "Sometimes Legal"},
+                {value: 15, label: "Never Legal"},
+                {value: 2, label: "Don't Know"}
+            ]
+        }
+        if(year==2000) {
+            dataset = [
+                {value: 21, label: "Always Legal"},
+                {value: 54, label: "Sometimes Legal"},
+                {value: 22, label: "Never Legal"},
+                {value: 3, label: "Don't Know"}
+            ]
+        }
+        if(year==2004) {
+            dataset = [
+                {value: 28, label: "Always Legal"},
+                {value: 51, label: "Sometimes Legal"},
+                {value: 19, label: "Never Legal"},
+                {value: 1, label: "Don't Know"}
+            ]
+        }
+        if(year==2008) {
+            dataset = [
+                {value: 28, label: "Always Legal"},
+                {value: 54, label: "Sometimes Legal"},
+                {value: 17, label: "Never Legal"},
+                {value: 2, label: "Don't Know"}
+            ]
+        }
+        if(year==2012) {
+            dataset = [
+                {value: 25, label: "Always Legal"},
+                {value: 52, label: "Sometimes Legal"},
+                {value: 20, label: "Never Legal"},
+                {value: 3, label: "Don't Know"}
+            ]
+        }
+        if(year==2016) {
+            dataset = [
+                {value: 29, label: "Always Legal"},
+                {value: 50, label: "Sometimes Legal"},
+                {value: 19, label: "Never Legal"},
+                {value: 2, label: "Don't Know"}
+            ]
+        }
+
+        var labels = dataset.map(function(t) {
+            return t.label
+        });
+
+        var margin = {top: 50, right: 5, bottom: 50, left: 50};
+        var fullWidth = 960;
+        var fullHeight = 400;
+
+        var width = fullWidth - margin.right - margin.left;
+        var height = fullHeight - margin.top - margin.bottom;
+        var svg = d3.select('#barchart')
+            .attr('width', fullWidth)
+            .attr('height', fullHeight)
+            .append('g')
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        var labelScale = d3.scaleBand()
+            .domain(labels)
+            .range([0, width])
+            .paddingInner(0.1);
+
+        var bandwidth = labelScale.bandwidth();
+
+        var maxValue = d3.max(dataset, function(d) { return d.value; });
+        var valueScale = d3.scaleLinear()
+            .domain([0, maxValue])
+            .range([height, 0])
+            .nice();
+
+        var xAxis = d3.axisBottom(labelScale);
+        var yAxis = d3.axisLeft(valueScale);
+
+        svg.append('g')
+            .classed('x axis', true)
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(xAxis);
+
+        var yAxisEle = svg.append('g')
+            .classed('y axis', true)
+            .call(yAxis);
+
+        var yText = yAxisEle.append('text')
+            .attr('transform', 'rotate(-90)translate(-' + height/2 + ',0)')
+            .style('text-anchor', 'middle')
+            .style('fill', 'black')
+            .attr('dy', '-2.5em')
+            .style('font-size', 14)
+            .text('Percentage of Respondents');
+
+        var barHolder = svg.append('g')
+            .classed('bar-holder', true);
+
+        var bars = barHolder.selectAll('rect.bar')
+            .data(dataset)
+            .enter().append('rect')
+            .classed('bar', true)
+            .style("stroke", "blue")
+            .style("stroke-width", "1")
+            .style("fill", "white")
+            .attr('x', function(d, i) {
+                return labelScale(d.label)
+            })
+            .attr('width', bandwidth)
+            .attr("y", height)
+            .transition().duration(1000)
+            .ease(d3.easeExp)
+            .attr("y", function(d) {
+                return valueScale(d.value);
+            })
+            .attr("height", function(d) {
+                return height -valueScale(d.value);
+            });
+
+        svg.append("text")
+            .attr("x", (width / 2))
+            .attr("y", -20)
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("font-weight", "bold")
+            .text("Gallup Polling Data:  Should abortion be legal?");
+    }
 
     function type(d, _, columns) {
         d.year = parseTime(d.year);
@@ -157,6 +564,19 @@
         return d;
     }
 
+    function fadeIn(el, display){
+        el.style.opacity = 0;
+        el.style.display = display || "block";
+
+        (function fade() {
+            var val = parseFloat(el.style.opacity);
+            if (!((val += .05) > 1)) {
+                el.style.opacity = val;
+                requestAnimationFrame(fade);
+            }
+        })();
+    }
 </script>
+
 
 </html>
