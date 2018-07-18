@@ -3,7 +3,6 @@
 <meta charset="utf-8">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style>
-
     .axis--x path {
         display: none;
     }
@@ -23,6 +22,9 @@
     #textBox{
         font-family: Arial, Helvetica, sans-serif;
         margin-left: 15px;
+        //margin-right: 15px;
+        //text-align: justify;
+        //text-justify: inter-word;
     }
     #barchart{
         margin-left: 50px;
@@ -40,6 +42,11 @@
         justify-content: space-between;
         border-bottom: 1px solid #d5d5d6;
         margin-bottom: 10px;
+    }
+    .footer {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 5px;
     }
     .axis {
         font: 15px sans-serif;
@@ -60,7 +67,6 @@
         stroke-opacity: 0.7;
         shape-rendering: crispEdges;
     }
-
     .grid path {
         stroke-width: 0;
     }
@@ -69,44 +75,54 @@
 <body style="width: 1054px;">
 
 <div class="header">
-    <h2 style = "margin-left: 15px">Party Affiliation and Social Attitude Trends in America</h2>
+    <h2 style="margin-left: 15px">Party Affiliation and Social Attitude Trends in America</h2>
     <div class="pull-right" style="line-height: 40px;margin-right: 20px; margin-top:10px">
-        <button onclick="location.href = 'about.html';" class="btn btn-primary" data-toggle="modal" data-target="#myModal">About the Visualization</button>
+        <button onclick="location.href = 'about.html';" class="btn btn-primary" data-toggle="modal"
+                data-target="#myModal">About the Visualization
+        </button>
     </div>
 </div>
 
 
-<div class = "center">
+<div class="center">
 
-<div class="float half" id="textBox">
-    <br>
-    <b>The Divided States of America?</b><br><br>
-    The current state of American politics make the partisan divide appear larger and more bitter than ever.  But is that true?
-    The purpose of this visualization is to allow users to explore the historical partisanship in America and its relationship
-    with social and cultural trends in American life.  <br><br>
-    The visualization on the right, drawn from the American National Election Studies time series, plots survey respondents'
-    self-identified political identity on each election year from 1968 to 2016.  Perhaps surprisingly, the data shows a sharp
-    rise in political independents over time, to the point where they are now the largest identity group. <br><br>
+    <div class="float half" id="textBox">
+        <br>
+        <b>The Divided States of America?</b><br><br>
+        The current state of American politics make the partisan divide appear larger and more bitter than ever. But is
+        that true?
+        The purpose of this visualization is to allow users to explore the historical partisanship in America and its
+        relationship
+        with social and cultural trends in American life. <br><br>
+        The visualization on the right, drawn from the American National Election Studies time series, plots survey
+        respondents'
+        self-identified political identity on each election year from 1968 to 2016. Perhaps surprisingly, the data shows
+        a sharp
+        rise in political independents over time, to the point where they are now the largest identity group. <br><br>
 
-    Click on the chart to drill-down into details relating to a given-year.
+        Click on the chart to drill-down into details relating to a given-year.
+    </div>
+
+    <div class="float half">
+        <svg width="740" height="500"></svg>
+    </div>
+
+
+    <div>
+        <svg id="barchart">
+        </svg>
+    </div>
+
+    <div id='tooltip'
+         style='position:absolute;background-color:white;padding:10px;border: 1px solid;border-radius: 25px;opacity:0'>
+    </div>
+
+    <div id='annotation' style='position:absolute;background-color:white;padding:10px;opacity:0'>
+    </div>
+
 </div>
 
-<div class="float half">
-<svg width="760" height="500"></svg>
-</div>
-
-
-<div>
-    <svg id = "barchart">
-    </svg>
-</div>
-
-<div id='tooltip' style='position:absolute;background-color:white;padding:10px;border: 1px solid;border-radius: 25px;opacity:0'>
-</div>
-
-<div id='annotation' style='position:absolute;background-color:white;padding:10px;opacity:0'>
-</div>
-
+<div id="homeButton" class="footer">
 </div>
 
 </body>
@@ -180,6 +196,7 @@
         party.append("path")
             .attr("class", "line")
             .attr("d", function(d) { return line(d.values); })
+            .style("stroke-width", 2)
             .style("stroke", function(d) {
                 if(d.id =="Republican"){
                     return "red";
@@ -194,7 +211,7 @@
             .attr("transform", function(d) { return "translate(" + x(d.value.year) + "," + y(d.value.affiliation) + ")"; })
             .attr("x", 3)
             .attr("dy", "0.35em")
-            .style("font", "14px sans-serif")
+            .style("font", "12px sans-serif")
             .text(function(d) { return d.id; });
 
         tipBox = g.append('rect')
@@ -253,6 +270,26 @@
                 .style('opacity', 1);
 
             document.getElementById("barchart").innerHTML = " ";
+            var margin = {top: 50, right: 5, bottom: 50, left: 50};
+            var fullWidth = 960;
+            var fullHeight = 400;
+            var width = fullWidth - margin.right - margin.left;
+            var height = fullHeight - margin.top - margin.bottom;
+            var svg = d3.select('#barchart')
+                .attr('width', fullWidth)
+                .attr('height', fullHeight)
+                .append('g')
+                .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+            svg.append("text")
+                .attr("x", (width / 2))
+                .attr("y", -20)
+                .attr("text-anchor", "middle")
+                .style("font-size", "16px")
+                .style("font-weight", "bold")
+                .text("Charts will appear here.  Links will open in a new window.");
+
+            document.getElementById("homeButton").innerHTML = "<button onclick=\"location.href = 'index.html';\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#myModal\">\n" +
+                "Return Home\n" + "</button>\n";
 
             if(closest ==1968){
                 var el = document.getElementById("textBox");
@@ -283,8 +320,8 @@
                     "<br><b>November 2, 1976<br><br>"+
                     "</b>Jimmy Carter, a Democrat, wins the election with 50.1% of the popular vote and 297 electoral votes.<br><br>"+
                     "Click on the buttons below for addition information on the election and social issues in 1976:" +
-                    "<br><button style='width:300px' onclick='launchJobGraph(1976)'>Chart:  Attitudes on Government Provided Standard of Living</button>" +
                     "<br><br><button style='width:300px' onclick = 'launchHealthGraph(1976)'>Chart:  Attitudes on Government Provided Health Insurance</button>" +
+                    "<br><button style='width:300px' onclick='launchJobGraph(1976)'>Chart:  Attitudes on Government Provided Standard of Living</button>" +
                     "<br><button style='width:300px' onclick='launchGenderGraph(1976)'>Chart:  Attitudes on Gender Equality</button>" +
                     "<br><button style='width:300px' onclick='launchAbortionGraph(1976)'>Chart:  Attitudes on Abortion</button>" +
                     "<br><button style='width:300px' onclick = window.open('https://en.wikipedia.org/wiki/United_States_presidential_election,_1976')> Link:  Presidential Election</button>";
@@ -589,7 +626,7 @@
             .classed('bar', true)
             .style("stroke", "blue")
             .style("stroke-width", "1")
-            .style("fill", "white")
+            .style("fill", "rgb(240,240,240)")
             .attr('x', function(d, i) {
                 return labelScale(d.label)+50;
             })
@@ -612,6 +649,23 @@
             .style("font-weight", "bold")
             .text("Gallup Polling Data:  Should abortion be legal?");
 
+        var numHolder = svg.append('g')
+            .classed('num-holder', true);
+
+        var bars = numHolder.selectAll('text')
+            .data(dataset)
+            .enter().append('text')
+            .attr('x', function(d, i) {
+                return labelScale(d.label)+100;
+            })
+            .attr('width', bandwidth)
+            .attr("y", function(d, i) {
+                return valueScale(d.value)+15;})
+            .text(function(d) { return d.value; })
+            .attr("opacity", 0)
+            .transition().duration(1500)
+            .attr("opacity", 1)
+        ;
     }
 
     function launchHealthGraph(year){
@@ -842,7 +896,7 @@
             .classed('bar', true)
             .style("stroke", "blue")
             .style("stroke-width", "1")
-            .style("fill", "white")
+            .style("fill", "rgb(240,240,240)")
             .attr('x', function(d, i) {
                 return labelScale(d.label)+20;
             })
@@ -865,6 +919,24 @@
             .style("font-weight", "bold")
             .text("ANES Survey Data:  Support for Government Funded Health Insurance");
 
+
+        var numHolder = svg.append('g')
+            .classed('num-holder', true);
+
+        var bars = numHolder.selectAll('text')
+            .data(dataset)
+            .enter().append('text')
+            .attr('x', function(d, i) {
+                return labelScale(d.label)+45;
+            })
+            .attr('width', bandwidth)
+            .attr("y", function(d, i) {
+                return valueScale(d.value)+15;})
+            .text(function(d) { return d.value; })
+            .attr("opacity", 0)
+            .transition().duration(1500)
+            .attr("opacity", 1)
+        ;
     }
 
     function launchGenderGraph(year){
@@ -877,7 +949,7 @@
                 {value: 19, label: "4"},
                 {value: 6, label: "5"},
                 {value: 4, label: "6"},
-                {value: 19, label: "7 (Place is in Home}"},
+                {value: 19, label: "7 (Place is in Home)"},
                 {value: 5, label: "Don't Know"}
             ]
         }
@@ -889,7 +961,7 @@
                 {value: 18, label: "4"},
                 {value: 7, label: "5"},
                 {value: 5, label: "6"},
-                {value: 11, label: "7 (Place is in Home}"},
+                {value: 11, label: "7 (Place is in Home)"},
                 {value: 9, label: "Don't Know"}
             ]
         }
@@ -901,7 +973,7 @@
                 {value: 16, label: "4"},
                 {value: 7, label: "5"},
                 {value: 6, label: "6"},
-                {value: 6, label: "7 (Place is in Home}"},
+                {value: 6, label: "7 (Place is in Home)"},
                 {value: 6, label: "Don't Know"}
             ]
         }
@@ -913,7 +985,7 @@
                 {value: 21, label: "4"},
                 {value: 7, label: "5"},
                 {value: 3, label: "6"},
-                {value: 5, label: "7 (Place is in Home}"},
+                {value: 5, label: "7 (Place is in Home)"},
                 {value: 10, label: "Don't Know"}
             ]
         }
@@ -925,7 +997,7 @@
                 {value: 16, label: "4"},
                 {value: 5, label: "5"},
                 {value: 4, label: "6"},
-                {value: 6, label: "7 (Place is in Home}"},
+                {value: 6, label: "7 (Place is in Home)"},
                 {value: 6, label: "Don't Know"}
             ]
         }
@@ -937,7 +1009,7 @@
                 {value: 13, label: "4"},
                 {value: 5, label: "5"},
                 {value: 3, label: "6"},
-                {value: 4, label: "7 (Place is in Home}"},
+                {value: 4, label: "7 (Place is in Home)"},
                 {value: 4, label: "Don't Know"}
             ]
         }
@@ -949,7 +1021,7 @@
                 {value: 11, label: "4"},
                 {value: 4, label: "5"},
                 {value: 3, label: "6"},
-                {value: 3, label: "7 (Place is in Home}"},
+                {value: 3, label: "7 (Place is in Home)"},
                 {value: 4, label: "Don't Know"}
             ]
         }
@@ -961,7 +1033,7 @@
                 {value: 11, label: "4"},
                 {value: 4, label: "5"},
                 {value: 2, label: "6"},
-                {value: 3, label: "7 (Place is in Home}"},
+                {value: 3, label: "7 (Place is in Home)"},
                 {value: 3, label: "Don't Know"}
             ]
         }
@@ -973,7 +1045,7 @@
                 {value: 9, label: "4"},
                 {value: 4, label: "5"},
                 {value: 2, label: "6"},
-                {value: 2, label: "7 (Place is in Home}"},
+                {value: 2, label: "7 (Place is in Home)"},
                 {value: 5, label: "Don't Know"}
             ]
         }
@@ -985,7 +1057,7 @@
                 {value: 8, label: "4"},
                 {value: 4, label: "5"},
                 {value: 2, label: "6"},
-                {value: 2, label: "7 (Place is in Home}"},
+                {value: 2, label: "7 (Place is in Home)"},
                 {value: 2, label: "Don't Know"}
             ]
         }
@@ -1059,7 +1131,7 @@
             .classed('bar', true)
             .style("stroke", "blue")
             .style("stroke-width", "1")
-            .style("fill", "white")
+            .style("fill", "rgb(240,240,240)")
             .attr('x', function(d, i) {
                 return labelScale(d.label)+20;
             })
@@ -1082,6 +1154,23 @@
             .style("font-weight", "bold")
             .text("ANES Survey Data:  Should Women Have an Equal Role in Society?");
 
+        var numHolder = svg.append('g')
+            .classed('num-holder', true);
+
+        var bars = numHolder.selectAll('text')
+            .data(dataset)
+            .enter().append('text')
+            .attr('x', function(d, i) {
+                return labelScale(d.label)+45;
+            })
+            .attr('width', bandwidth)
+            .attr("y", function(d, i) {
+                return valueScale(d.value)+15;})
+            .text(function(d) { return d.value; })
+            .attr("opacity", 0)
+            .transition().duration(1500)
+            .attr("opacity", 1)
+        ;
     }
 
     function launchJobGraph(year){
@@ -1300,7 +1389,7 @@
             .classed('bar', true)
             .style("stroke", "blue")
             .style("stroke-width", "1")
-            .style("fill", "white")
+            .style("fill", "rgb(240,240,240)")
             .attr('x', function(d, i) {
                 return labelScale(d.label)+20;
             })
@@ -1323,6 +1412,23 @@
             .style("font-weight", "bold")
             .text("ANES Survey Data:  Support for Government Provided Job and Standard of Living");
 
+        var numHolder = svg.append('g')
+            .classed('num-holder', true);
+
+        var bars = numHolder.selectAll('text')
+            .data(dataset)
+            .enter().append('text')
+            .attr('x', function(d, i) {
+                return labelScale(d.label)+45;
+            })
+            .attr('width', bandwidth)
+            .attr("y", function(d, i) {
+                return valueScale(d.value)+15;})
+            .text(function(d) { return d.value; })
+            .attr("opacity", 0)
+            .transition().duration(1500)
+            .attr("opacity", 1)
+        ;
     }
 
     function type(d, _, columns) {

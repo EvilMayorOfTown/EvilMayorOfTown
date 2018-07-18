@@ -11,20 +11,95 @@
         margin-bottom: 10px;
     }
 
+    .row {
+        display: flex;
+    }
+
+    /* Create two equal columns that sits next to each other */
+    .column {
+        flex: 50%;
+        margin-left:15px;
+        height: 300px;
+        text-align: justify;
+        text-justify: inter-word;
+
+    }
 </style>
 
 <body style="width: 1054px;">
 
 <div class="header">
-    <h2 style = "margin-left: 15px">Party Affiliation and Social Attitude Trends in America</h2>
+    <h2 style="margin-left: 15px">Party Affiliation and Social Attitude Trends in America</h2>
     <div class="pull-right" style="line-height: 40px;margin-right: 20px; margin-top:10px">
-        <button onclick="location.href = 'index.html';" class="btn btn-primary" data-toggle="modal" data-target="#myModal">Return Home</button>
+        <button onclick="location.href = 'index.html';" class="btn btn-primary" data-toggle="modal"
+                data-target="#myModal">Return Home
+        </button>
     </div>
 </div>
 
+<div style="margin-left:20px;text-align: justify; text-justify: inter-word">
+    This visualization was prepared by Peter Tsapatsaris as the final project for CS 498-Data Visualization-at the University of Illinois Urbana-Champaign.
+    It is based upon the <b>Drill-Down Story</b> hybrid structure for narrative visualizations.  The user is presented with a chart that
+    shows a counterintuitive decline in American partisanship over time, and by clicking on the chart, the user can drill-down into details relating to the political state and social
+    attitudes for that particular year.  Through this process, the user can realize trends (or lack thereof) in American political attitudes over time.
+</div>
 
-<div>
-    COMING SOON!
+<div class="row">
+
+    <div class="column">
+
+        <h4>Scenes</h4>
+        <p>The scenes in this visualization consist of groups of coordinated charts.  The main scene, the chart plotting partisan political identity over time, is
+            shown on the home page and remains through all transitions.  It is a line chart, as it plots two quantitative variables, one independent and one dependent (time and percentage of respondents).  The line color was chosen to encode the
+            party identity of respondents, blue for Democrats, red for Republicans, and gray for Independents.  Since this scene does not change, it follows a consistent visual template by definition.  The chart itself follows Tufte's rule of minimalism by attempting to maximize the data-ink ratio.  For example, the chart omits obvious axis labels, like year, as unnecessary.
+
+            <br><br>Clicking on the main chart will bring up the option to summon additional scenes related to that year through button presses.  Prior to selection, text appears on the screen indicating where the new chart will be displayed, which serves to orient the viewer to the scene change.
+            These new scenes use the same visual template: a bar chart with consistent visual designs.  They plot discrete data on the x-axis (survey response categories) and quantitative data on the y-axis
+            (percentage of respondents), so bar charts are the best visualization in this instance.
+        </p>
+        <h4>Annotations</h4>
+        <p>The primary scene (the line chart), uses several annotations.  First, in lieu of a legend, each line is directly labeled with the party affiliation it represents.  These annotations
+            are necessary information to interpret the chart, and therefore do not clear when the scene is changed.  Second, when the chart is clicked on, text appears in the upper-right corner that displays the data values for the year
+            selected.  These annotations all use an identical visual template.  They are cleared and updated whenever a new year is clicked on, or when the user returns to the homepage.
+            Third, a hover-over tooltip is used to display this same data for the year under the mouse, which allows a user to dynamically compare data for a given year with any other year displayed on the chart.  The tooltip follows
+            the same visual template as the fixed annotations, and clears when the mouse leaves the chart.<br><br>
+
+            The bar charts are annotated to specifically display the value being plotted within each bar.  The numbering and spacing are identical in each chart, promoting visual consistency.  These
+            annotations remain as long as the specific chart is displayed, and are cleared when the user clicks on a new chart or year.  Also note that the svg box prior to chart selection contains
+            the text, "Charts will appear here. Links will open in a new window."  This text orients the user to the consequences of making a selection.
+            <br><br>
+        </p>
+    </div>
+    <div class="column", style="margin-left:30px">
+        <h4>Parameters</h4>
+        <p>The primary parameter used in this visualization is the year.  Selecting a year will change the state of the scene, causing two primary effects:  (1) information relating to that year
+            will appear as annotations on the chart; and (2) information and options will appear in the text box to the left of the chart.
+            These options consist of a set of buttons which operate another set of parameters.  These parameters control the scene that is displayed in the secondary panel.  Clicking on a button causes a
+            new scene to appear.
+        </p>
+
+        <h4>Triggers</h4>
+        <p>The triggers that alter the presentation parameters are controlled by mouse clicks.  The opening scene contains text instructing the user "Click on the chart to drill-down into details relating to a given-year."
+        Once the chart is clicked the following events occur: (1) the chart is updated to display annotations; (2) the information pane is updated to include buttons and user instructions; and (3)
+            text is displayed in the secondary svg pane (previously invisible) indicating where chosen information will be displayed.  <br><br>
+
+            The buttons operate a secondary set of triggers which cause the selected bar chart to be displayed.  These charts contain a short animation in which the bars rise from the base of the chart.
+            A final button is also present in each scene that will launch the wikipedia page for that year's presidential election in a new browser window.
+        </p>
+        <h4>The Data</h4>
+        <p>The data for this project came primarily from the American National Election Studies, which has been administering election year surveys
+            since 1948.  The ANES surveys thousands of Americans and questions them on a variety of political issues, including the role of government,
+            race, gender, religion, and abortion.  Respondents are generally asked to place themselves on a 1-7 point scale regarding particular topics.
+            For more information, please visit the ANES website at <a href="https://electionstudies.org">https://electionstudies.org/</a>.<br><br>
+            Abortion polling results were obtained from Gallup, and can be found here:  <a href="https://news.gallup.com/poll/1576/abortion.aspx">https://news.gallup.com/poll/1576/abortion.aspx</a>.
+        </p>
+
+    </div>
+</div>
+
+</body>
+</html>
+
 </div>
 </body>
 </html>
