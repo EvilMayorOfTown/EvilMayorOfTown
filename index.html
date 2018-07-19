@@ -3,9 +3,6 @@
 <meta charset="utf-8">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 <style>
-    .axis--x path {
-        display: none;
-    }
     .line {
         fill: none;
         stroke: steelblue;
@@ -18,24 +15,6 @@
     }
     .half{
         width: 30%;
-    }
-    #textBox{
-        font-family: Arial, Helvetica, sans-serif;
-        margin-left: 15px;
-    //margin-right: 15px;
-    //text-align: justify;
-    //text-justify: inter-word;
-    }
-    #barchart{
-        margin-left: 50px;
-    }
-    @keyframes fadeInOut {
-        0% {
-            opacity: 0;
-        }
-        100% {
-            opacity: 1;
-        }
     }
     .header {
         display: flex;
@@ -69,6 +48,24 @@
     }
     .grid path {
         stroke-width: 0;
+    }
+    #textBox{
+        font-family: Arial, Helvetica, sans-serif;
+        margin-left: 15px;
+    //margin-right: 15px;
+    //text-align: justify;
+    //text-justify: inter-word;
+    }
+    #barchart{
+        margin-left: 50px;
+    }
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
     }
 </style>
 
@@ -174,7 +171,7 @@
         z.domain(parties.map(function(c) { return c.id; }));
 
         g.append("g")
-            .attr("class", "axis axis--x")
+            .attr("class", "axis")
             .attr("transform", "translate(0," + height + ")")
             .call(d3.axisBottom(x).ticks(d3.timeYear.every(4)));
 
